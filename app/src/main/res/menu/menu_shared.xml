@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+    <item android:id="@+id/action_add" android:title="@string/add"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_plus_circle"
+        app:showAsAction="always" />
+    <item android:id="@+id/action_reload" android:title="@string/reload"
+        android:orderInCategory="200"
+        android:icon="@drawable/ic_refresh"
+        app:showAsAction="always" />
+    <item android:id="@+id/action_save" android:title="@string/save"
+        android:orderInCategory="300"
+        android:icon="@drawable/ic_cloud_upload"
+        app:showAsAction="always" />
+    <item android:id="@+id/action_clear" android:title="@string/delete"
+        android:orderInCategory="400"
+        android:icon="@drawable/ic_close_circle"
+        app:showAsAction="always" />
+    <item android:id="@+id/action_settings" android:title="@string/settings"
+        android:orderInCategory="500"
+        android:icon="@drawable/ic_settings_white_48dp"
+        app:showAsAction="always" />
+</menu>

@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Lista2</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="add">Dodaj</string>
+    <string name="reload">Odśwież</string>
+    <string name="save">Zapisz</string>
+    <string name="delete">Usuń</string>
+    <string name="settings">Ustawienia</string>
+    <string name="last_update">Ostatnia aktualizacja:</string>
+
+
+    <array name="settings">
+        <item>Wielkosc kafelkow listy zakupow</item>
+        <item>Wielkosc czcionki notatki</item>
+    </array>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+</resources>
