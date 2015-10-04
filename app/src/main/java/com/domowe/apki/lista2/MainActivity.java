@@ -1,6 +1,7 @@
 package com.domowe.apki.lista2;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -19,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         }
         else if(currentFragment instanceof PrivateListFragment){
             menu.findItem(R.id.action_add).setVisible(true);
+            menu.findItem(R.id.action_remove).setVisible(true);
             menu.findItem(R.id.action_delete).setVisible(true);
         }
         else if(currentFragment instanceof NoteFragment){
@@ -114,10 +117,13 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
 
             case R.id.action_add:
                 if(currentFragment instanceof IndexFragment) {
-                    ListTypeDialog().show();
+                    listTypeDialog().show();
                 } else if(currentFragment instanceof PrivateListFragment){
-                    AddItemDialog().show();
+                    addItemDialog().show();
                 }
+                break;
+            case R.id.action_remove:
+                removeDialog().show();
                 break;
             case R.id.action_delete:
                 deleteDialog().show();
@@ -127,13 +133,14 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
             case R.id.action_save:
                 break;
             case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private Dialog ListTypeDialog(){
+    private Dialog listTypeDialog(){
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_list_type);
@@ -158,22 +165,26 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         return dialog;
     }
 
-    private Dialog AddItemDialog(){
+    private Dialog addItemDialog(){
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.add_item_dialog2);
+        dialog.setContentView(R.layout.dialog_add_item);
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         final AutoCompleteTextView name = (AutoCompleteTextView) dialog.findViewById(R.id.name);
         final EditText quantity = (EditText) dialog.findViewById(R.id.ilosc);
         final Button cancel = (Button) dialog.findViewById(R.id.anuluj);
         Button add = (Button) dialog.findViewById(R.id.dodaj);
         final ImageView pin = (ImageView) dialog.findViewById(R.id.imageView);
+        final Spinner unit = (Spinner) dialog.findViewById(R.id.spinner);
+        final String[] units = getResources().getStringArray(R.array.units);
+
+        unit.setAdapter(new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, units));
         final boolean[] pinned = new boolean[]{false};
 
         if(articles.size()==0)
             articles = Utils.getDefaultList(this);
 
-        name.setAdapter(new ArrayAdapter(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,articles));
+        name.setAdapter(new ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,articles));
         name.setThreshold(1);
 
         name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -197,7 +208,8 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
             public void onClick(View view) {
                 if(!Utils.isEmpty(MainActivity.this, name)){
                     Toast.makeText(MainActivity.this, "Dodano", Toast.LENGTH_SHORT).show();
-                    handleItemAdding(name.getText().toString().trim(), Utils.getQuantityValue(quantity));
+                    handleItemAdding(name.getText().toString().trim(), Utils.getQuantityValue(quantity) + " " + unit.getSelectedItem());
+                    Log.v(" main", Utils.getQuantityValue(quantity)+" "+unit.getSelectedItem());
                     name.setText("");
                     name.requestFocus();
                     quantity.setText("1");
@@ -219,10 +231,34 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         return dialog;
     }
 
+    private Dialog removeDialog(){
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_delete);
+        TextView textView = (TextView) dialog.findViewById(R.id.textView);
+        Button no = (Button) dialog.findViewById(R.id.nie);
+        Button yes = (Button) dialog.findViewById(R.id.tak);
+        textView.setText("Usunąć nieaktywne artykuły?");
+        no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        yes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleItemsRemoving();
+                dialog.dismiss();
+            }
+        });
+        return dialog;
+    }
+
     private Dialog deleteDialog(){
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.delete_dialog);
+        dialog.setContentView(R.layout.dialog_delete);
         Button no = (Button) dialog.findViewById(R.id.nie);
         Button yes = (Button) dialog.findViewById(R.id.tak);
         no.setOnClickListener(new View.OnClickListener() {
@@ -279,6 +315,13 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
             articles.add(name);
     }
 
+    private void handleItemsRemoving(){
+        MyDraggableWithSectionItemAdapter adapter = ((PrivateListFragment)getSupportFragmentManager().findFragmentById(R.id.container)).getMyItemAdapter();
+        ListDataProvider provider = (ListDataProvider) adapter.getProvider();
+        provider.removeInactiveItems(adapter.getLast() + 2);
+        adapter.notifyItemRangeRemoved(adapter.getLast()+2, provider.getCount());
+    }
+
     private void setToolbarClickListener(){
         try {
             Field titleField = Toolbar.class.getDeclaredField("mTitleTextView");
@@ -302,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
     private Dialog renameDialog(final Fragment currentFragment){
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.change_name_dialog);
+        dialog.setContentView(R.layout.dialog_change_name);
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         Button cancel = (Button) dialog.findViewById(R.id.anuluj);
         Button confirm = (Button) dialog.findViewById(R.id.zatwierdz);
@@ -381,9 +424,18 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
     }
 
     @Override
-    protected void onStop() {
+         protected void onStop() {
         super.onStop();
 
         new SaveReadFile(Utils.getFileFromName(this, Constants.ARTICLE_LIST_FILE)).writeListToFile(articles);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        getSupportFragmentManager().beginTransaction().detach(currentFragment).attach(currentFragment).commit();
+
+        articles = Utils.getDefaultList(this);
     }
 }

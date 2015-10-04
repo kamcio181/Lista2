@@ -76,7 +76,7 @@
             android:paddingRight="10dp"
             android:textColor="@color/bg_item_dragging_active_state"
             android:text="new"
-            android:id="@+id/newIem"
+            android:id="@+id/newItem"
             android:visibility="gone"
             android:singleLine="true" />
     </LinearLayout>

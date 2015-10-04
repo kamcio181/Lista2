@@ -1,13 +1,22 @@
 package com.domowe.apki.lista2;
 
 
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
+import android.widget.ScrollView;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -117,14 +126,77 @@ public class NoteFragment extends Fragment {
         @Override
         protected void onPostExecute(String note) {
             super.onPostExecute(note);
-            EditText editText = (EditText) getActivity().findViewById(R.id.editText2);
+            final EditText editText = (EditText) getActivity().findViewById(R.id.editText2);
             editText.setText(note);
+            editText.setTextSize(getActivity().getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(Constants.NOTE_TEXT_SIZE_KEY, 18));
             Utils.showKeyboard(getActivity(), editText);
             editText.setSelection(note.length());
+
+            final ScrollView scrollView = (ScrollView) getActivity().findViewById(R.id.scrollView);
+            scrollView.setForeground(new drawableLine(getActivity(), scrollView));
+            scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+                int offset = 0;
+                @Override
+                public void onScrollChanged() {
+                    Log.v("note", "   "+(offset+editText.getLineHeight())+"     "+scrollView.getScrollY());
+                    if(scrollView.getScrollY() >=  offset+editText.getLineHeight()) {
+                        scrollView.setForeground(new drawableLine(getActivity(), scrollView));
+                        offset = scrollView.getScrollY();
+                        Log.v("note","true");
+                    }
+                }
+            });
         }
     }
 
     public void setFile(File file) {
         this.file = file;
+    }
+}
+class drawableLine extends Drawable{
+    private Context context;
+    private ScrollView view;
+
+    public drawableLine(Context context, ScrollView view) {
+        this.context = context;
+        this.view = view;
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(ContextCompat.getColor(context, R.color.primaryColor));
+        paint.setStrokeWidth(context.getResources().getDisplayMetrics().density * 1);
+
+        EditText editText = (EditText) view.getChildAt(0);
+
+        int paddingTop = editText.getLineHeight()-editText.getBaseline()+1;
+        int lineHeight = editText.getLineHeight();
+        Log.v("note",""+editText.getLineSpacingExtra() );
+        int totalHeight = editText.getHeight() > view.getHeight() ? editText.getHeight() : view.getHeight();
+        int linesCount = totalHeight/lineHeight;
+        int paddingLeft = view.getPaddingLeft();
+        int x = view.getWidth()-paddingLeft;
+        int y;
+
+        for (int i = 1; i<linesCount; i++){
+            y = i*lineHeight + paddingTop;
+            canvas.drawLine(paddingLeft, y, x, y, paint);
+        }
+    }
+
+    @Override
+    public void setAlpha(int i) {
+
+    }
+
+    @Override
+    public void setColorFilter(ColorFilter colorFilter) {
+
+    }
+
+    @Override
+    public int getOpacity() {
+        return 0;
     }
 }

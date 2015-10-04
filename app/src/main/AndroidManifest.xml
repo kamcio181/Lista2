@@ -23,6 +23,10 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
+        <activity
+            android:name=".ItemsManagementActivity"
+            android:label="@string/title_activity_items_management" >
+        </activity>
     </application>
 
 </manifest>

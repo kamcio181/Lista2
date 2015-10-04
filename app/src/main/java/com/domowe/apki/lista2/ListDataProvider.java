@@ -17,6 +17,7 @@
 package com.domowe.apki.lista2;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -105,6 +106,15 @@ public class ListDataProvider extends AbstractDataProvider {
 
         mLastRemovedData = removedItem;
         mLastRemovedPosition = position;
+    }
+
+    public void removeInactiveItems(int last) {
+        int mDataSize = mData.size();
+        for (int i = last; i<mDataSize; i++ ){
+            mData.remove(last);
+            Log.v("provider", "usunięto");
+        }
+
     }
 
     private class LoadArticles extends AsyncTask<File,Void,List<ConcreteData>> {

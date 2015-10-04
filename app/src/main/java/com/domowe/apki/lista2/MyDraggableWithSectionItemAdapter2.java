@@ -107,12 +107,6 @@ public class MyDraggableWithSectionItemAdapter2
     private void onBindSectionItemViewHolder(MyViewHolder holder, final int position) {
         final ListObject item = mProvider.getItem(position);
 
-        /*ListObject item = mProvider.getItem(position);
-        holder.mName.setText(item.getName());
-        holder.mCreatedDate.setText(item.getCreateDate());
-        holder.mType.setText(item.getType());*/
-
-
         // set text
         holder.mName.setText(item.getName());
         holder.mCreatedDate.setText(item.getCreateDate());

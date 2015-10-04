@@ -6,14 +6,18 @@
 
     <TextView
         android:layout_width="fill_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Dodaj artykuł"
         android:id="@+id/textView"
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:background="@color/primaryColor"
-        android:textColor="#ffffff" />
+        android:textColor="#ffffff"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp" />
 
     <ImageView
         android:layout_width="wrap_content"
@@ -70,6 +74,15 @@
         android:selectAllOnFocus="true"
         android:imeOptions="actionDone"
         android:singleLine="true" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner"
+        android:layout_toRightOf="@+id/ilosc"
+        android:layout_alignTop="@+id/ilosc"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" />
 
     <LinearLayout
         android:orientation="horizontal"

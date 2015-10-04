@@ -101,7 +101,7 @@ public class MyDraggableWithSectionItemAdapter
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
-        final View v = viewType == Constants.ITEM_VIEW_TYPE_SECTION_HEADER ? inflater.inflate(R.layout.list_section_header, parent, false) : inflater.inflate(R.layout.list_item_draggable_48, parent, false);
+        final View v = viewType == Constants.ITEM_VIEW_TYPE_SECTION_HEADER ? inflater.inflate(R.layout.list_section_header, parent, false) : inflater.inflate(getTileSize(), parent, false);
 
         return new MyViewHolder(v);
     }
@@ -116,6 +116,19 @@ public class MyDraggableWithSectionItemAdapter
             case Constants.ITEM_VIEW_TYPE_SECTION_ITEM_INACTIVE:
                 onBindSectionItemViewHolder(holder, position);
                 break;
+        }
+    }
+
+    private int getTileSize(){
+        switch (context.getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(Constants.TILE_SIZE_KEY, Constants.TILE_MEDIUM)){
+            case Constants.TILE_SMALL:
+                return R.layout.list_item_draggable_32;
+            case Constants.TILE_MEDIUM:
+                return R.layout.list_item_draggable_48;
+            case Constants.TILE_BIG:
+                return R.layout.list_item_draggable_64;
+            default:
+                return R.layout.list_item_draggable_48;
         }
     }
 
@@ -138,20 +151,12 @@ public class MyDraggableWithSectionItemAdapter
         // set text
         holder.mName.setText(item.getText());
         holder.mQuantity.setText(item.getQuantity());
-        holder.mName.setMeasure();
-        holder.mQuantity.setMeasure();
 
         if(item.getViewType() == Constants.ITEM_VIEW_TYPE_SECTION_ITEM_INACTIVE){
             int color = ContextCompat.getColor(context, R.color.primaryColor);
             holder.mName.setStrikeEnabled(true, color);
             holder.mQuantity.setStrikeEnabled(true, color);
             holder.mNewItem.setStrikeEnabled(true, color);
-            holder.mName.invalidate();
-            holder.mQuantity.invalidate();
-            holder.mNewItem.invalidate();
-            /*holder.mName.setPaintFlags(holder.mName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            holder.mQuantity.setPaintFlags(holder.mQuantity.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            holder.mNewItem.setPaintFlags(holder.mNewItem.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);*/
         }
         if(item.isNewItem())
             holder.mNewItem.setVisibility(View.VISIBLE);

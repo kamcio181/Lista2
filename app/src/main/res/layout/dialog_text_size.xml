@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="16dp">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Wielkość czcionki"
+        android:id="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:background="@color/primaryColor"
+        android:textColor="#ffffff"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@drawable/dropshadow"
+        android:id="@+id/shadow"
+        android:layout_below="@id/textView"/>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/shadow"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+                <NumberPicker
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/numberPicker"
+                    android:layout_below="@+id/shadow"
+                    android:orientation="vertical"
+                    android:layout_gravity="center_horizontal" />
+                </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Abc"
+                android:id="@+id/textView3"
+                android:layout_toRightOf="@+id/numberPicker"
+                android:layout_alignTop="@+id/numberPicker"
+                android:layout_alignBottom="@+id/numberPicker"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Anuluj"
+                android:id="@+id/cancel"
+
+                android:layout_columnWeight="1"
+                android:layout_weight="1" />
+
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Zapisz"
+                    android:id="@+id/confirm"
+
+                    android:layout_columnWeight="1"
+                android:layout_weight="1" />
+        </TableRow>
+    </TableLayout>
+
+</RelativeLayout>

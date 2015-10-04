@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +60,8 @@ public class PrivateListFragment extends Fragment {
         if (getArguments() != null) {
             name = getArguments().getString(ARG_PARAM1);
             id = getArguments().getInt(ARG_PARAM2);
-            file = Utils.getFileFromName(getActivity(),name);
+            file = Utils.getFileFromName(getActivity(), name);
+            Log.v("privateList", "create");
         }
     }
 
@@ -73,7 +75,7 @@ public class PrivateListFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getActivity().invalidateOptionsMenu();
-
+        Log.v("privateList", "view");
         ListDataProvider dataProvider = new ListDataProvider(file);
 
         //noinspection ConstantConditions
@@ -132,6 +134,7 @@ public class PrivateListFragment extends Fragment {
     @Override
     public void onPause() {
         mRecyclerViewDragDropManager.cancelDrag();
+        Log.v("privateList", "pause");
         super.onPause();
     }
 
@@ -165,7 +168,7 @@ public class PrivateListFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-
+        Log.v("privateList", "stop");
         if(((MainActivity)getActivity()).isRemoveNote()){
             if (file.exists())
                 file.delete();

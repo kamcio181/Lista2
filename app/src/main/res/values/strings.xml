@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Lista2</string>
+    <string name="title_activity_settings">Ustawienia</string>
+    <string name="title_activity_items_management">Usuń zbędne artykuły</string>
 
     <string name="action_settings">Settings</string>
     <string name="add">Dodaj</string>
@@ -8,13 +10,21 @@
     <string name="delete">Usuń</string>
     <string name="settings">Ustawienia</string>
     <string name="last_update">Ostatnia aktualizacja:</string>
+    <string name="remove">Remove</string>
 
 
     <array name="settings">
-        <item>Wielkosc kafelkow listy zakupow</item>
-        <item>Wielkosc czcionki notatki</item>
+        <item>Wielkość kafelów listy zakupów</item>
+        <item>Wielkość czcionki notatki</item>
+        <item>Rodzaje artykułów</item>
     </array>
-    <string name="title_activity_settings">SettingsActivity</string>
 
-    <string name="hello_world">Hello world!</string>
+    <array name="units">
+        <item>szt.</item>
+        <item>g</item>
+        <item>dag</item>
+        <item>kg</item>
+        <item>ml</item>
+        <item>l</item>
+    </array>
 </resources>
