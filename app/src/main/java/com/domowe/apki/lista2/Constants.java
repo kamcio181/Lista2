@@ -23,4 +23,12 @@ public class Constants {
     public static final String TILE_SIZE_KEY = "tile_size";
     public static final String NOTE_TEXT_SIZE_KEY = "note_text_size";
 
+    public static final String SHARED_LIST_NAME = "sharedList";
+    private static final String APP_KEY ="j3m1fn9r3bewtsa"; //TODO zmień
+    private static final String APP_SECRET = "kue8mq0pq5hm77k"; //TODO zmień
+    private static final String ACCOUNT_PREFS_NAME = "prefs";
+    private static final String ACCESS_KEY_NAME = "ACCESS_KEY";
+    private static final String ACCESS_SECRET_NAME = "ACCESS_SECRET";
+
+
 }

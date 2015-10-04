@@ -69,6 +69,10 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
 
     }
 
+    public void setLists(ArrayList<String> lists) {
+        this.lists = lists;
+    }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -280,8 +284,6 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
     }
 
     private void handleListCreating(String name, boolean isList){
-        if(lists == null)
-            lists = ((IndexFragment)mainFragment).getListNames();
 
         name = Utils.getUniqueListName(lists, name);
 
@@ -319,7 +321,8 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         MyDraggableWithSectionItemAdapter adapter = ((PrivateListFragment)getSupportFragmentManager().findFragmentById(R.id.container)).getMyItemAdapter();
         ListDataProvider provider = (ListDataProvider) adapter.getProvider();
         provider.removeInactiveItems(adapter.getLast() + 2);
-        adapter.notifyItemRangeRemoved(adapter.getLast()+2, provider.getCount());
+        adapter.notifyDataSetChanged();
+        //adapter.notifyItemRangeRemoved(adapter.getLast()+2, provider.getCount());
     }
 
     private void setToolbarClickListener(){
