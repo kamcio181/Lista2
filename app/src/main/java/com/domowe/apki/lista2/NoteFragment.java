@@ -133,14 +133,14 @@ public class NoteFragment extends Fragment {
             editText.setSelection(note.length());
 
             final ScrollView scrollView = (ScrollView) getActivity().findViewById(R.id.scrollView);
-            scrollView.setForeground(new drawableLine(getActivity(), scrollView));
+            scrollView.setForeground(new DrawnLines(getActivity(), scrollView));
             scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
                 int offset = 0;
                 @Override
                 public void onScrollChanged() {
                     Log.v("note", "   "+(offset+editText.getLineHeight())+"     "+scrollView.getScrollY());
                     if(scrollView.getScrollY() >=  offset+editText.getLineHeight()) {
-                        scrollView.setForeground(new drawableLine(getActivity(), scrollView));
+                        scrollView.setForeground(new DrawnLines(getActivity(), scrollView));
                         offset = scrollView.getScrollY();
                         Log.v("note","true");
                     }
@@ -153,11 +153,11 @@ public class NoteFragment extends Fragment {
         this.file = file;
     }
 }
-class drawableLine extends Drawable{
+class DrawnLines extends Drawable{
     private Context context;
     private ScrollView view;
 
-    public drawableLine(Context context, ScrollView view) {
+    public DrawnLines(Context context, ScrollView view) {
         this.context = context;
         this.view = view;
     }
