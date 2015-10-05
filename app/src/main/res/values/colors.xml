@@ -39,6 +39,10 @@
     <color name="snackbar_action_color_done">#ffccccff</color>
 
     <color name="primaryColor">#673ab7</color>
+    <color name="primaryColorLight">#d1c4e9</color>
+    <color name="primaryColorLight2">#b39ddb</color>
+    <color name="primaryColorLight3">#9575cd</color>
+    <color name="primaryColorLight4">#7e57c2</color>
     <color name="primaryColorDark">#512da8</color>
     <color name="accentColor">#50514F</color>
 </resources>

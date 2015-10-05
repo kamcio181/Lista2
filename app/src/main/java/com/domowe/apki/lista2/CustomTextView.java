@@ -3,10 +3,7 @@ package com.domowe.apki.lista2;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.TextView;
 
 /**
@@ -72,7 +69,7 @@ class CustomTextView extends TextView {
                         case 2:
                         default:
                             for(int i = 1; i <= 2; i++)
-                                canvas.drawLine(getPaddingLeft() - OFFSET, i*getLineHeight(), getPaint().measureText(getText().toString()) + getPaddingLeft() + OFFSET, i*getLineHeight(), paint);
+                                canvas.drawLine(getPaddingLeft() - OFFSET, i*getLineHeight(), getPaint().measureText(getText().subSequence(getLayout().getLineStart(i-1),getLayout().getLineEnd(i-1)).toString()) + getPaddingLeft() + OFFSET, i*getLineHeight(), paint);
                             break;
                             }
                     break;
@@ -83,12 +80,12 @@ class CustomTextView extends TextView {
                             break;
                         case 2:
                             for(int i = 1; i <= 2; i++)
-                                canvas.drawLine(getPaddingLeft() - OFFSET, i*getLineHeight() + getLineHeight()/2, getPaint().measureText(getText().toString()) + getPaddingLeft() + OFFSET, i*getLineHeight() + getLineHeight()/2, paint);
+                                canvas.drawLine(getPaddingLeft() - OFFSET, i*getLineHeight() + getLineHeight()/2, getPaint().measureText(getText().subSequence(getLayout().getLineStart(i-1), getLayout().getLineEnd(i-1)).toString()) + getPaddingLeft() + OFFSET, i*getLineHeight() + getLineHeight()/2, paint);
                             break;
                         case 3:
                         default:
                             for(int i = 1; i <= 3; i++)
-                                canvas.drawLine(getPaddingLeft() - OFFSET, i*getLineHeight(), getPaint().measureText(getText().toString()) + getPaddingLeft() + OFFSET, i*getLineHeight(), paint);
+                                canvas.drawLine(getPaddingLeft() - OFFSET, i*getLineHeight(), getPaint().measureText(getText().subSequence(getLayout().getLineStart(i - 1), getLayout().getLineEnd(i - 1)).toString()) + getPaddingLeft() + OFFSET, i*getLineHeight(), paint);
                             break;
                     }
                     break;
