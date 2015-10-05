@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         TextView textView = (TextView) dialog.findViewById(R.id.textView);
         Button no = (Button) dialog.findViewById(R.id.nie);
         Button yes = (Button) dialog.findViewById(R.id.tak);
-        textView.setText("Usunąć nieaktywne artykuły?");
+        textView.setText("Usunąć kupione artykuły?");
         no.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
