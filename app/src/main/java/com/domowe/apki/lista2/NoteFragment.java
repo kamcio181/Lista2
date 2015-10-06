@@ -165,7 +165,7 @@ class DrawnLines extends Drawable{
     @Override
     public void draw(Canvas canvas) {
         Paint paint = new Paint();
-        paint.setColor(ContextCompat.getColor(context, R.color.primaryColorLight2));
+        paint.setColor(ContextCompat.getColor(context, R.color.primaryColorLight));
         paint.setStrokeWidth(context.getResources().getDisplayMetrics().density * 1);
 
         EditText editText = (EditText) view.getChildAt(0);
