@@ -29,7 +29,7 @@ import java.util.ArrayList;
 public class Utils {
     public static boolean isEmpty(Context context, EditText editText){
         if(editText.getText().toString().trim().equals("")){
-            Toast.makeText(context, "Pole jest puste!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.empty_field,Toast.LENGTH_SHORT).show();
             return true;
         }
         return false;

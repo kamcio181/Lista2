@@ -77,7 +77,8 @@
             android:text="!"
             android:id="@+id/newItem"
             android:visibility="gone"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:textColor="@color/primaryColor" />
     </LinearLayout>
 </FrameLayout>
 </FrameLayout>

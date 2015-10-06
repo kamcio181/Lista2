@@ -3,11 +3,12 @@ package com.domowe.apki.lista2;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
 /**
- * Created by k.kaszubski on 10/2/15.
+ * Custom TextView with strike through in different color
  */
 
 class CustomTextView extends TextView {
@@ -37,29 +38,19 @@ class CustomTextView extends TextView {
 
     }
 
-    public void setStrikeEnabled(boolean enableStrike) {
-        this.strikeEnabled = enableStrike;
-    }
-
     public void setStrikeEnabled(boolean enableStrike, int strikeColor) {
         paint.setColor(strikeColor);
         this.strikeEnabled = enableStrike;
     }
 
-    public void setStrikeColor(int strikeColor) {
-        paint.setColor(strikeColor);
-        this.invalidate();
-
-    }
-
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         // TODO Auto-generated method stub
         super.onDraw(canvas);
         if (strikeEnabled) {
             switch (getContext().getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(Constants.TILE_SIZE_KEY,Constants.TILE_MEDIUM)){
                 case Constants.TILE_SMALL:
-                    canvas.drawLine(getPaddingLeft() - OFFSET, getHeight() / 2, getPaint().measureText(getText().toString()) + getPaddingLeft() + OFFSET, getHeight() / 2, paint);
+                    canvas.drawLine(getPaddingLeft() - OFFSET, getHeight() / 2, getPaint().measureText(getText().subSequence(getLayout().getLineStart(0),getLayout().getLineEnd(0)).toString()) + getPaddingLeft() + OFFSET, getHeight() / 2, paint);
                     break;
                 case Constants.TILE_MEDIUM:
                     switch (getLineCount()){

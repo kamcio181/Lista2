@@ -8,10 +8,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator;
@@ -29,7 +29,6 @@ public class PrivateListFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
-    private RecyclerView.Adapter mAdapter;
     private RecyclerView.Adapter mWrappedAdapter;
     private RecyclerViewDragDropManager mRecyclerViewDragDropManager;
     private MyDraggableWithSectionItemAdapter myItemAdapter;
@@ -38,7 +37,6 @@ public class PrivateListFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     private File file;
-    private String name;
     private int id;
 
     public static PrivateListFragment newInstance(String param1, int param2) {
@@ -58,10 +56,9 @@ public class PrivateListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            name = getArguments().getString(ARG_PARAM1);
+
             id = getArguments().getInt(ARG_PARAM2);
-            file = Utils.getFileFromName(getActivity(), name);
-            Log.v("privateList", "create");
+            file = Utils.getFileFromName(getActivity(), getArguments().getString(ARG_PARAM1));
         }
     }
 
@@ -75,7 +72,7 @@ public class PrivateListFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getActivity().invalidateOptionsMenu();
-        Log.v("privateList", "view");
+
         ListDataProvider dataProvider = new ListDataProvider(file);
 
         //noinspection ConstantConditions
@@ -101,15 +98,13 @@ public class PrivateListFragment extends Fragment {
                 AbstractDataProvider provider = myItemAdapter.getProvider();
 
                 provider.moveItem(position, last + 1);
-
                 myItemAdapter.notifyItemMoved(position, last + 1);
+
                 provider.getItem(last+1).changeViewType();
                 myItemAdapter.notifyItemChanged(last+1);
 
             }
         });
-
-        mAdapter = myItemAdapter;
 
         mWrappedAdapter = mRecyclerViewDragDropManager.createWrappedAdapter(myItemAdapter);      // wrap for dragging
 
@@ -134,7 +129,6 @@ public class PrivateListFragment extends Fragment {
     @Override
     public void onPause() {
         mRecyclerViewDragDropManager.cancelDrag();
-        Log.v("privateList", "pause");
         super.onPause();
     }
 
@@ -155,7 +149,6 @@ public class PrivateListFragment extends Fragment {
             WrapperAdapterUtils.releaseAll(mWrappedAdapter);
             mWrappedAdapter = null;
         }
-        mAdapter = null;
         mLayoutManager = null;
 
         super.onDestroyView();
@@ -168,11 +161,15 @@ public class PrivateListFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        Log.v("privateList", "stop");
         if(((MainActivity)getActivity()).isRemoveNote()){
-            if (file.exists())
-                file.delete();
-            new SaveReadFile(Utils.getFileFromName(getActivity(),Constants.LIST_ITEMS_FILE)).removeItemFromList(id);
+            if (file.exists()) {
+                if(file.delete())
+                    new SaveReadFile(Utils.getFileFromName(getActivity(),Constants.LIST_ITEMS_FILE)).removeItemFromList(id);
+                else
+                    Toast.makeText(getActivity(), R.string.error_during_deleting_of_list, Toast.LENGTH_SHORT).show();
+
+            }else
+                new SaveReadFile(Utils.getFileFromName(getActivity(),Constants.LIST_ITEMS_FILE)).removeItemFromList(id);
         }
         else{
             new SaveReadFile(file).writeProviderItems(myItemAdapter.getProvider());

@@ -31,16 +31,14 @@ import java.util.concurrent.ExecutionException;
 
 public class IndexDataProvider {
     private List<ListObject> mData;
-    private ArrayList<String> listNames = new ArrayList<>();
+    private final ArrayList<String> listNames = new ArrayList<>();
     public IndexDataProvider(File file) {
 
         mData = new LinkedList<>();
 
         try {
             mData = new LoadListItems().execute(file).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }

@@ -17,7 +17,6 @@
 package com.domowe.apki.lista2;
 
 import android.content.Context;
-import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
@@ -27,8 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange;
@@ -38,10 +35,10 @@ import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemView
 public class MyDraggableWithSectionItemAdapter
         extends RecyclerView.Adapter<MyDraggableWithSectionItemAdapter.MyViewHolder>
         implements DraggableItemAdapter<MyDraggableWithSectionItemAdapter.MyViewHolder> {
-    private static final String TAG = "MyDragSectionAdapter";
+    //private static final String TAG = "MyDragSectionAdapter";
 
-    private AbstractDataProvider mProvider;
-    private Context context;
+    private final AbstractDataProvider mProvider;
+    private final Context context;
     private OnItemClickListener listener;
 
     public interface OnItemClickListener{
@@ -52,12 +49,12 @@ public class MyDraggableWithSectionItemAdapter
     }
 
     public class MyViewHolder extends AbstractDraggableItemViewHolder {
-        public FrameLayout mContainer;
-        public View mDragHandle;
-        public CustomTextView mName;
-        public CustomTextView mQuantity;
-        public CustomTextView mNewItem;
-        public LinearLayout mBody;
+        public final FrameLayout mContainer;
+        public final View mDragHandle;
+        public final CustomTextView mName;
+        public final CustomTextView mQuantity;
+        public final CustomTextView mNewItem;
+        public final LinearLayout mBody;
 
         public MyViewHolder(final View v) {
             super(v);

@@ -11,6 +11,11 @@
     <string name="settings">Ustawienia</string>
     <string name="last_update">Ostatnia aktualizacja:</string>
     <string name="remove">Remove</string>
+    <string name="cancelled">Anulowano</string>
+    <string name="error_during_deleting_of_list">Blad przy usuwaniu listy</string>
+    <string name="delete_item_question">Usunąć artykuł?</string>
+    <string name="failed_to_change_name">Zmiana nazwy nieudala sie</string>
+    <string name="empty_field">Pole jest puste!</string>
 
 
     <array name="settings">

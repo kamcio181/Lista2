@@ -51,7 +51,7 @@ public class SharedListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_recycler_list_view_main,container,false);
+        return inflater.inflate(R.layout.fragment_recycler_list_view_main, container, false);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class SharedListFragment extends Fragment {
         mRecyclerViewDragDropManager.setInitiateOnMove(false);
 
         //adapter
-        myItemAdapter = new MyDraggableWithSectionItemAdapter(getActivity(),dataProvider);
+        myItemAdapter = new MyDraggableWithSectionItemAdapter(getActivity(), dataProvider);
 
         myItemAdapter.setOnItemClickListener(new MyDraggableWithSectionItemAdapter.OnItemClickListener() {
             @Override
@@ -86,8 +86,8 @@ public class SharedListFragment extends Fragment {
                 provider.moveItem(position, last + 1);
 
                 myItemAdapter.notifyItemMoved(position, last + 1);
-                provider.getItem(last+1).changeViewType();
-                myItemAdapter.notifyItemChanged(last+1);
+                provider.getItem(last + 1).changeViewType();
+                myItemAdapter.notifyItemChanged(last + 1);
 
             }
         });

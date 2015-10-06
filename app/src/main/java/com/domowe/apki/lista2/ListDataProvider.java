@@ -39,9 +39,7 @@ public class ListDataProvider extends AbstractDataProvider {
 
         try {
             mData = new LoadArticles().execute(file).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
@@ -206,7 +204,7 @@ public class ListDataProvider extends AbstractDataProvider {
 
         @Override
         public String toString() {
-            return new StringBuilder().append(mText).append(";").append(mQuantity).toString();
+            return mText + ";" + mQuantity;
         }
 
         @Override

@@ -13,15 +13,17 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by Kamil on 2015-09-19.
+ * Saving files in one place ;)
  */
 public class SaveReadFile {
-    File file;
+    private final File file;
+    private boolean fileCreated = true;
     public SaveReadFile(File file){
         this.file = file;
         if(!file.exists())
             try {
-                file.createNewFile();
+                fileCreated = file.createNewFile();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -29,23 +31,23 @@ public class SaveReadFile {
     }
 
     public void writeProviderItems(IndexDataProvider provider){
-        new WriteProviderToFile().execute(provider);
+        if(fileCreated)
+            new WriteProviderToFile().execute(provider);
     }
 
     public void writeProviderItems(AbstractDataProvider provider){
-        new WriteProviderToFile2().execute(provider);
+        if(fileCreated)
+            new WriteProviderToFile2().execute(provider);
     }
 
     public void removeItemFromList(int id){
         try {
             ArrayList<String> list = new LoadItems().execute().get();
             list.remove(id);
-            new WriteListToFile().execute(list);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (IndexOutOfBoundsException e){
+
+            if(fileCreated)
+                new WriteListToFile().execute(list);
+        } catch (InterruptedException | IndexOutOfBoundsException | ExecutionException e) {
             e.printStackTrace();
         }
     }
@@ -55,36 +57,36 @@ public class SaveReadFile {
             ArrayList<String> list = new LoadItems().execute().get();
             String temp = list.get(id);
             list.set(id, name + temp.substring(temp.indexOf(";")));
-            new WriteListToFile().execute(list);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+
+            if(fileCreated)
+                new WriteListToFile().execute(list);
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }
 
     public void writeNote(String note){
-        new WriteNote().execute(note);
+        if(fileCreated)
+            new WriteNote().execute(note);
     }
 
     public void addToFile(String string){
-        Log.v("save file", "addToFile");
-        new AddToFile().execute(string);
+        if(fileCreated)
+            new AddToFile().execute(string);
     }
 
     public void writeListToFile(ArrayList<String> list){
-        new WriteListToFile().execute(list);
+        if(fileCreated)
+            new WriteListToFile().execute(list);
     }
 
-    public ArrayList readFile(){
+    public ArrayList<String> readFile(){
         try {
             return new LoadItems().execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-            return new ArrayList();
+        return new ArrayList<>();
     }
 
     private class AddToFile extends AsyncTask<String, Void, Void> {
@@ -125,7 +127,7 @@ public class SaveReadFile {
     private class LoadItems extends AsyncTask<Void,Void,ArrayList<String>> {
         @Override
         protected ArrayList<String> doInBackground(Void... voids) {
-            ArrayList resultList = new ArrayList();
+            ArrayList<String> resultList = new ArrayList<>();
             if(file.exists()){
                 try {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
@@ -142,16 +144,16 @@ public class SaveReadFile {
             return resultList;
         }
     }
-    private class WriteListToFile extends AsyncTask<ArrayList<String>, Void, Void>{
+    private class WriteListToFile extends AsyncTask<ArrayList, Void, Void>{
 
         @Override
-        protected Void doInBackground(ArrayList<String>... arrayLists) {
+        protected Void doInBackground(ArrayList... arrayLists) {
             try {
                 FileWriter f;
                 f = new FileWriter(file);
                 int size = arrayLists[0].size();
                 for(int i=0;i<size;i++){
-                    String line = arrayLists[0].get(i);
+                    String line = (String) arrayLists[0].get(i);
                     if(line != null){
                         f.write(line+"\r\n");
                     }

@@ -74,8 +74,8 @@
             android:gravity="center_vertical"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:textColor="@color/bg_item_dragging_active_state"
-            android:text="new"
+            android:textColor="@color/primaryColor"
+            android:text="!"
             android:id="@+id/newItem"
             android:visibility="gone"
             android:singleLine="true" />

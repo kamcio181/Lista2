@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,8 +38,6 @@ public class NoteFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private File file;
 
-    // TODO: Rename and change types of parameters
-    private String name;
     private int id;
 
     /**
@@ -66,7 +65,7 @@ public class NoteFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            name = getArguments().getString(ARG_PARAM1);
+            String name = getArguments().getString(ARG_PARAM1);
             id = getArguments().getInt(ARG_PARAM2);
             file = Utils.getFileFromName(getActivity(), name);
         }
@@ -90,9 +89,14 @@ public class NoteFragment extends Fragment {
     public void onStop() {
         super.onStop();
         if(((MainActivity)getActivity()).isRemoveNote()){
-            if (file.exists())
-                file.delete();
-            new SaveReadFile(Utils.getFileFromName(getActivity(),Constants.LIST_ITEMS_FILE)).removeItemFromList(id);
+            if (file.exists()) {
+                if(file.delete())
+                    new SaveReadFile(Utils.getFileFromName(getActivity(),Constants.LIST_ITEMS_FILE)).removeItemFromList(id);
+                else
+                    Toast.makeText(getActivity(), R.string.error_during_deleting_of_list, Toast.LENGTH_SHORT).show();
+
+            }else
+                new SaveReadFile(Utils.getFileFromName(getActivity(),Constants.LIST_ITEMS_FILE)).removeItemFromList(id);
         }
         else{
             EditText editText = (EditText) getActivity().findViewById(R.id.editText2);
@@ -103,7 +107,7 @@ public class NoteFragment extends Fragment {
     private class LoadNote extends AsyncTask<File,Void,String> {
         @Override
         protected String doInBackground(File... files) {
-            ArrayList<String> resultList = new ArrayList();
+            ArrayList<String> resultList = new ArrayList<>();
             String note = "";
             if(files[0].exists()){
                 try {
@@ -154,8 +158,8 @@ public class NoteFragment extends Fragment {
     }
 }
 class DrawnLines extends Drawable{
-    private Context context;
-    private ScrollView view;
+    private final Context context;
+    private final ScrollView view;
 
     public DrawnLines(Context context, ScrollView view) {
         this.context = context;

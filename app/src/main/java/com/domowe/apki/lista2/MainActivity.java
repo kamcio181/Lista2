@@ -24,7 +24,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,11 +33,10 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity implements IndexFragment.ListListener {
     private static final String FRAGMENT_LIST_VIEW = "list view";
 
-    private Menu menu;
+    //private Menu menu;
 
-    private TextView title, subtitle;
+    //private TextView title, subtitle;
     private Toolbar toolbar;
-    private RelativeLayout toolbarLayout;
     private Fragment mainFragment;
     private boolean removeNote;
 
@@ -53,10 +51,10 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbarLayout = (RelativeLayout) findViewById(R.id.toolbarLayout);
+        RelativeLayout toolbarLayout = (RelativeLayout) findViewById(R.id.toolbarLayout);
         toolbar = (Toolbar) toolbarLayout.findViewById(R.id.toolbar);
-        title = (TextView) toolbarLayout.findViewById(R.id.title);
-        subtitle = (TextView) toolbarLayout.findViewById(R.id.subtitle);
+        //title = (TextView) toolbarLayout.findViewById(R.id.title);
+        //subtitle = (TextView) toolbarLayout.findViewById(R.id.subtitle);
 
         setSupportActionBar(toolbar);
         setToolbarClickListener();
@@ -103,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        this.menu = menu;
+        //this.menu = menu;
         return true;
     }
 
@@ -182,13 +180,13 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         final Spinner unit = (Spinner) dialog.findViewById(R.id.spinner);
         final String[] units = getResources().getStringArray(R.array.units);
 
-        unit.setAdapter(new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, units));
+        unit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, units));
         final boolean[] pinned = new boolean[]{false};
 
         if(articles.size()==0)
             articles = Utils.getDefaultList(this);
 
-        name.setAdapter(new ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,articles));
+        name.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,articles));
         name.setThreshold(1);
 
         name.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -329,18 +327,20 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         try {
             Field titleField = Toolbar.class.getDeclaredField("mTitleTextView");
             titleField.setAccessible(true);
-            TextView barTitleView = (TextView) titleField.get(toolbar);
-            barTitleView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
-                    if(currentFragment instanceof NoteFragment || currentFragment instanceof PrivateListFragment)
-                        renameDialog(currentFragment).show();
-                }
-            });
+            try{
+                TextView barTitleView = (TextView) titleField.get(toolbar);
+                barTitleView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+                        if(currentFragment instanceof NoteFragment || currentFragment instanceof PrivateListFragment)
+                            renameDialog(currentFragment).show();
+                    }
+                });
+            } catch (IllegalAccessException f){
+                f.printStackTrace();
+            }
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
     }
@@ -373,21 +373,20 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
     }
 
     private void handleNameChange(Fragment currentFragment ,String newName){
-        if(!newName.equals(listName)){
-            File file = Utils.getFileFromName(this, listName);
+        if(!newName.equals(listName) && Utils.getFileFromName(this, listName).renameTo(Utils.getFileFromName(this,newName))){
 
             newName = Utils.getUniqueListName(lists, newName);
-
-            file.renameTo(Utils.getFileFromName(this,newName));
 
             setTitle(newName);
 
             Utils.setFragmentFile(currentFragment, newName);
 
             listName = newName;
-            //zmiana w pliku
+
             new SaveReadFile(Utils.getFileFromName(this,Constants.LIST_ITEMS_FILE)).renameItemInList(listId, newName);
         }
+        else
+            Toast.makeText(this, R.string.failed_to_change_name, Toast.LENGTH_LONG).show();
     }
 
     @Override

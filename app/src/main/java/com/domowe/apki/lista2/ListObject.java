@@ -1,7 +1,7 @@
 package com.domowe.apki.lista2;
 
 /**
- * Created by Kamil on 2015-09-19.
+ * List item - name, create date, type
  */
 public class ListObject {
     private final long mId;
@@ -31,6 +31,6 @@ public class ListObject {
     }
 
     public String toString(){
-        return new StringBuilder().append(mName).append(";").append(mCreateDate).append(";").append(mType).toString();
+        return mName + ";" + mCreateDate + ";" + mType;
     }
 }

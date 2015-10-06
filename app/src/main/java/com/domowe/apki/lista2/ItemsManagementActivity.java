@@ -1,7 +1,6 @@
 package com.domowe.apki.lista2;
 
 import android.app.Dialog;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -12,9 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.NumberPicker;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -34,13 +31,13 @@ public class ItemsManagementActivity extends AppCompatActivity implements Adapte
         articles = Utils.getDefaultList(this);
 
         listView = (ListView) findViewById(R.id.listView);
-        listView.setAdapter(new ArrayAdapter(this, android.R.layout.simple_list_item_1, articles));
+        listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, articles));
         listView.setOnItemClickListener(this);
 
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) { //TODO dokoncz ustawienia
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         removeItemDialog(i).show();
     }
     private Dialog removeItemDialog(final int itemId){
@@ -50,7 +47,7 @@ public class ItemsManagementActivity extends AppCompatActivity implements Adapte
         TextView textView = (TextView) dialog.findViewById(R.id.textView);
         Button no = (Button) dialog.findViewById(R.id.nie);
         Button yes = (Button) dialog.findViewById(R.id.tak);
-        textView.setText("Usunąć artykuł?");
+        textView.setText(R.string.delete_item_question);
         no.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

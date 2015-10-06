@@ -31,7 +31,7 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
         setSupportActionBar(toolbar);
 
         ListView listView = (ListView) findViewById(R.id.listView);
-        listView.setAdapter(new ArrayAdapter(this, android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.settings)));
+        listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.settings)));
         listView.setOnItemClickListener(this);
 
         preferences = getSharedPreferences(Constants.PREFERENCES_NAME, MODE_PRIVATE);
@@ -95,19 +95,19 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
         dialog.dismiss();
         switch (view.getId()){
             case R.id.button3:
-                preferences.edit().putInt(Constants.TILE_SIZE_KEY, Constants.TILE_SMALL).commit();
+                preferences.edit().putInt(Constants.TILE_SIZE_KEY, Constants.TILE_SMALL).apply();
                 break;
             case R.id.button4:
-                preferences.edit().putInt(Constants.TILE_SIZE_KEY, Constants.TILE_MEDIUM).commit();
+                preferences.edit().putInt(Constants.TILE_SIZE_KEY, Constants.TILE_MEDIUM).apply();
                 break;
             case R.id.button5:
-                preferences.edit().putInt(Constants.TILE_SIZE_KEY, Constants.TILE_BIG).commit();
+                preferences.edit().putInt(Constants.TILE_SIZE_KEY, Constants.TILE_BIG).apply();
                 break;
             case R.id.cancel:
-                Toast.makeText(this,"Anulowano",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.cancelled,Toast.LENGTH_SHORT).show();
                 break;
             case R.id.confirm:
-                preferences.edit().putInt(Constants.NOTE_TEXT_SIZE_KEY, numberPicker.getValue()).commit();
+                preferences.edit().putInt(Constants.NOTE_TEXT_SIZE_KEY, numberPicker.getValue()).apply();
                 break;
             default:
                 break;

@@ -35,8 +35,8 @@ public class MyDraggableWithSectionItemAdapter2
         extends RecyclerView.Adapter<MyDraggableWithSectionItemAdapter2.MyViewHolder>
         implements DraggableItemAdapter<MyDraggableWithSectionItemAdapter2.MyViewHolder> {
 
-    private IndexDataProvider mProvider;
-    private Context context;
+    private final IndexDataProvider mProvider;
+    private final Context context;
     private OnItemClickListener listener;
 
     public interface OnItemClickListener{
@@ -47,12 +47,12 @@ public class MyDraggableWithSectionItemAdapter2
     }
 
     public class MyViewHolder extends AbstractDraggableItemViewHolder {
-        public FrameLayout mContainer;
-        public View mDragHandle;
-        public TextView mName;
-        public TextView mCreatedDate;
-        public TextView mType;
-        public RelativeLayout mBody;
+        public final FrameLayout mContainer;
+        public final View mDragHandle;
+        public final TextView mName;
+        public final TextView mCreatedDate;
+        public final TextView mType;
+        public final RelativeLayout mBody;
 
         public MyViewHolder(final View v) {
             super(v);

@@ -30,12 +30,10 @@ public class IndexFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
-    private RecyclerView.Adapter mAdapter;
     private RecyclerView.Adapter mWrappedAdapter;
     private RecyclerViewDragDropManager mRecyclerViewDragDropManager;
     private MyDraggableWithSectionItemAdapter2 myItemAdapter;
     private ListListener listener;
-    private ArrayList<String> listNames;
     private File listIndex;
 
     public IndexFragment() {
@@ -69,7 +67,7 @@ public class IndexFragment extends Fragment {
 
         //adapter
         myItemAdapter = new MyDraggableWithSectionItemAdapter2(getActivity(),dataProvider);
-        listNames = dataProvider.getListNames();
+        ArrayList<String> listNames = dataProvider.getListNames();
 
         ((MainActivity)getActivity()).setLists(listNames);
 
@@ -83,8 +81,6 @@ public class IndexFragment extends Fragment {
 
             }
         });
-
-        mAdapter = myItemAdapter;
 
         mWrappedAdapter = mRecyclerViewDragDropManager.createWrappedAdapter(myItemAdapter);      // wrap for dragging
 
@@ -129,7 +125,6 @@ public class IndexFragment extends Fragment {
             WrapperAdapterUtils.releaseAll(mWrappedAdapter);
             mWrappedAdapter = null;
         }
-        mAdapter = null;
         mLayoutManager = null;
 
         super.onDestroyView();
@@ -137,10 +132,6 @@ public class IndexFragment extends Fragment {
 
     private boolean supportsViewElevation() {
         return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-    }
-
-    public ArrayList<String> getListNames() {
-        return listNames;
     }
 
     interface ListListener{
