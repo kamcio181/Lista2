@@ -81,8 +81,8 @@ public class ListDataProvider extends AbstractDataProvider {
     }
 
     @Override
-    public void addItem(String name, String quantity) {
-        mData.add(1,new ConcreteData(mData.size(), false, Constants.ITEM_VIEW_TYPE_SECTION_ITEM_ACTIVE, name, quantity, false));
+    public void addItem(String name, String quantity, boolean isNew) {
+        mData.add(1,new ConcreteData(mData.size(), false, Constants.ITEM_VIEW_TYPE_SECTION_ITEM_ACTIVE, name, quantity, isNew));
     }
 
     @Override
@@ -121,7 +121,7 @@ public class ListDataProvider extends AbstractDataProvider {
             List<ConcreteData> resultList = new LinkedList<>();
             int i = 1;
             resultList.add(new ConcreteData(0,true,Constants.ITEM_VIEW_TYPE_SECTION_HEADER,"Do kupienia","",false));
-            if(files[0].exists()){
+            if(files[0] != null && files[0].exists()){
                 try {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(files[0])));
                     String line;

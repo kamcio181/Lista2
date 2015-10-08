@@ -39,12 +39,14 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
     private Toolbar toolbar;
     private Fragment mainFragment;
     private boolean removeNote;
+    private boolean sharedListUpdated = false;
 
     private String listName;
     private int listId;
 
     private ArrayList<String> lists;
     private ArrayList<String> articles = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         }
         else {
             menu.findItem(R.id.action_add).setVisible(true);
+            menu.findItem(R.id.action_remove).setVisible(true);
             menu.findItem(R.id.action_reload).setVisible(true);
             menu.findItem(R.id.action_save).setVisible(true);
         }
@@ -121,18 +124,30 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
                 if(currentFragment instanceof IndexFragment) {
                     listTypeDialog().show();
                 } else if(currentFragment instanceof PrivateListFragment){
-                    addItemDialog().show();
+                    addItemDialog(true).show();
+                }else if(currentFragment instanceof SharedListFragment && sharedListUpdated){
+                    addItemDialog(false).show();
+                }else if(Utils.isOnline(this)){
+                    //TODO pobierz liste we fragmencie
+                    //addItemDialog(false).show();
+                }else {
+                    Toast.makeText(this, "Wlacz dostep do internetu aby uaktualnic wspolna liste", Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.action_remove:
+                //TODO sprawdzanie czy shared czy private
                 removeDialog().show();
                 break;
             case R.id.action_delete:
                 deleteDialog().show();
                 break;
             case R.id.action_reload:
+                //TODO sprawdz czy jest dostep do neta i pobierz liste
                 break;
             case R.id.action_save:
+                //TODO sprawdz czy jest dostep do neta i pobierz liste
+                //TODO porownaj nowa liste z data ze starej - jesli daty rozne sprawdz roznice i dodaj jako new i popros o sprawdze nie zmian
+                //TODO jezeli nie bylo zmian zapisz liste
                 break;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -167,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         return dialog;
     }
 
-    private Dialog addItemDialog(){
+    private Dialog addItemDialog(final boolean isPrivate){
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_add_item);
@@ -210,7 +225,9 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
             public void onClick(View view) {
                 if(!Utils.isEmpty(MainActivity.this, name)){
                     Toast.makeText(MainActivity.this, "Dodano", Toast.LENGTH_SHORT).show();
-                    handleItemAdding(name.getText().toString().trim(), Utils.getQuantityValue(quantity) + " " + unit.getSelectedItem());
+
+                    handleItemAdding(name.getText().toString().trim(), Utils.getQuantityValue(quantity) + " " + unit.getSelectedItem(), isPrivate);
+
                     Log.v(" main", Utils.getQuantityValue(quantity)+" "+unit.getSelectedItem());
                     name.setText("");
                     name.requestFocus();
@@ -305,10 +322,15 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         Log.v("start", "start");
     }
 
-    private void handleItemAdding(String name, String quantity){
-        MyDraggableWithSectionItemAdapter adapter = ((PrivateListFragment)getSupportFragmentManager().findFragmentById(R.id.container)).getMyItemAdapter();
+    private void handleItemAdding(String name, String quantity, boolean isPrivate){
+        MyDraggableWithSectionItemAdapter adapter;
+        if(isPrivate)
+            adapter = ((PrivateListFragment) getSupportFragmentManager().findFragmentById(R.id.container)).getMyItemAdapter();
+        else
+            adapter = ((SharedListFragment) getSupportFragmentManager().findFragmentById(R.id.container)).getMyItemAdapter();
+
         ListDataProvider provider = (ListDataProvider) adapter.getProvider();
-        provider.addItem(Utils.replaceSemiColons(name), quantity);
+        provider.addItem(Utils.replaceSemiColons(name), quantity, false);
         adapter.notifyItemInserted(1);
 
         if(!articles.contains(name))
@@ -439,5 +461,9 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         getSupportFragmentManager().beginTransaction().detach(currentFragment).attach(currentFragment).commit();
 
         articles = Utils.getDefaultList(this);
+    }
+
+    public void setSharedListUpdated(boolean sharedListUpdated) {
+        this.sharedListUpdated = sharedListUpdated;
     }
 }

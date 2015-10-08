@@ -17,6 +17,8 @@
 package com.domowe.apki.lista2;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.view.inputmethod.InputMethodManager;
@@ -24,6 +26,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class Utils {
@@ -34,6 +39,32 @@ public class Utils {
         }
         return false;
     }
+
+    public static boolean isOnline(Context context){
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            if (netInfo != null && netInfo.isConnected()) {
+                    try
+                    {
+                        HttpURLConnection urlc = (HttpURLConnection) (new URL("http://www.google.com").openConnection());
+                        urlc.setRequestProperty("User-Agent", "Test");
+                        urlc.setRequestProperty("Connection", "close");
+                        urlc.setConnectTimeout(3000); //choose your own timeframe
+                        urlc.setReadTimeout(4000); //choose your own timeframe
+                        urlc.connect();
+                        urlc.getResponseCode();
+                        return (urlc.getResponseCode() == 200);
+                    } catch (IOException e)
+                    {
+                        return false;  //connectivity exists, but no internet.
+                    }
+                } else
+                {
+                    return false;  //no connectivity
+                }
+    }
+
+
     public static String getQuantityValue(EditText editText){
         if(editText.getText().toString().trim().equals(""))
             return "1";
