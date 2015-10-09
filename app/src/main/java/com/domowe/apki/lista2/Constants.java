@@ -23,6 +23,9 @@ public class Constants {
     public static final String TEMP_LIST_NAME = "temporaryList";
 
     public static final String PATH_TO_FILE_ON_DROPBOX = "testfile.csv";
+    public static final String REV = "rev";
+    public static final String MODIFICATION_DATE = "date";
+
 
     public static final String APP_KEY ="j3m1fn9r3bewtsa"; //TODO zmień
     public static final String APP_SECRET = "kue8mq0pq5hm77k"; //TODO zmień

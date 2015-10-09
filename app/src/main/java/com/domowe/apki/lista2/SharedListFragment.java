@@ -2,6 +2,7 @@ package com.domowe.apki.lista2;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.android.AndroidAuthSession;
@@ -23,11 +25,13 @@ import com.dropbox.client2.exception.DropboxParseException;
 import com.dropbox.client2.exception.DropboxPartialFileException;
 import com.dropbox.client2.exception.DropboxServerException;
 import com.dropbox.client2.exception.DropboxUnlinkedException;
+import com.dropbox.client2.session.AppKeyPair;
 import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.decoration.ItemShadowDecorator;
 import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager;
+import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,26 +44,14 @@ public class SharedListFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
-    private RecyclerView.Adapter mAdapter;
     private RecyclerView.Adapter mWrappedAdapter;
     private RecyclerViewDragDropManager mRecyclerViewDragDropManager;
     private MyDraggableWithSectionItemAdapter myItemAdapter;
 
-    private File file;
-
     DropboxAPI<AndroidAuthSession> mApi;
-    private String rev = "";
 
     public SharedListFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            file = Utils.getFileFromName(getActivity(), Constants.SHARED_LIST_NAME);
-        }
     }
 
     @Override
@@ -74,17 +66,19 @@ public class SharedListFragment extends Fragment {
         getActivity().invalidateOptionsMenu();
         Log.v("privateList", "view");
 
-        //if(Utils.isOnline(getActivity()))
-            //TODO get file from dropbox and get data provider
-            //((MainActivity)getActivity()).setSharedListUpdated(true);
-
-
-
-
+        if(Utils.isOnline(getActivity())){
+            getDB();
+            getSharedList();
+        }
     }
 
-    /*@Override
-    protected void onResume() {
+    public void getSharedList(){
+        Toast.makeText(getActivity(), "Pobieranie listy z serwera",Toast.LENGTH_SHORT).show();
+        new DownloadSharedList(getActivity(), mApi).execute();
+    }
+
+    @Override
+    public void onResume() {
         super.onResume();
 
         if (mApi!=null && mApi.getSession().authenticationSuccessful()) {
@@ -100,21 +94,22 @@ public class SharedListFragment extends Fragment {
     }
     private void storeAccessToken(String aT){
         if(aT != null){
-            SharedPreferences prefs = getSharedPreferences(ACCOUNT_PREFS_NAME, 0);
+            SharedPreferences prefs = getActivity().getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE);
             SharedPreferences.Editor edit = prefs.edit();
-            edit.putString(ACCESS_KEY_NAME, "oauth2:");
-            edit.putString(ACCESS_SECRET_NAME, aT);
-            edit.commit();
-            return;
+            edit.putString(Constants.ACCESS_KEY_NAME, "oauth2:");
+            edit.putString(Constants.ACCESS_SECRET_NAME, aT);
+            edit.apply();
         }
     }
 
     public void getDB(){
-        AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+        AppKeyPair appKeys = new AppKeyPair(Constants.APP_KEY, Constants.APP_SECRET);
         AndroidAuthSession session = new AndroidAuthSession(appKeys);
 
-        String key = prefs.getString(ACCESS_KEY_NAME, null);
-        String secret = prefs.getString(ACCESS_SECRET_NAME, null);
+        SharedPreferences prefs = getActivity().getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE);
+
+        String key = prefs.getString(Constants.ACCESS_KEY_NAME, null);
+        String secret = prefs.getString(Constants.ACCESS_SECRET_NAME, null);
 
         if (key != null && key.equals("oauth2:")) {
             // If the key is set to "oauth2:", then we can assume the token is for OAuth 2.
@@ -122,7 +117,7 @@ public class SharedListFragment extends Fragment {
             mApi = new DropboxAPI<>(session);
         } else {
             mApi = new DropboxAPI<>(session);
-            mApi.getSession().startOAuth2Authentication(MainActivity2.this);
+            mApi.getSession().startOAuth2Authentication(getActivity());
         }
     }
 
@@ -150,38 +145,17 @@ public class SharedListFragment extends Fragment {
             WrapperAdapterUtils.releaseAll(mWrappedAdapter);
             mWrappedAdapter = null;
         }
-        mAdapter = null;
         mLayoutManager = null;
 
         super.onDestroyView();
     }
 
-    private boolean supportsViewElevation() {
-        return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.v("privateList", "stop");
-        if(((MainActivity)getActivity()).isRemoveNote()){
-            if (file.exists())
-                file.delete();
-            new SaveReadFile(Utils.getFileFromName(getActivity(),Constants.LIST_ITEMS_FILE)).removeItemFromList(id);
-        }
-        else{
-            new SaveReadFile(file).writeProviderItems(myItemAdapter.getProvider());
-        }
-    }
 
     public MyDraggableWithSectionItemAdapter getMyItemAdapter() {
         return myItemAdapter;
     }
 
-    public void setFile(File file) {
-        this.file = file;
-    }*/
-    public class DownloadRandomPicture extends AsyncTask<Void, Long, ListDataProvider> {
+    public class DownloadSharedList extends AsyncTask<Void, Long, ListDataProvider> {
 
 
         private Context mContext;
@@ -191,11 +165,7 @@ public class SharedListFragment extends Fragment {
 
         private String mErrorMsg;
 
-        // Note that, since we use a single file name here for simplicity, you
-        // won't be able to use this code for two simultaneous downloads.
-        private final static String IMAGE_FILE_NAME = "dbroulette.png";
-
-        public DownloadRandomPicture(Context context, DropboxAPI<?> api) {
+        public DownloadSharedList(Context context, DropboxAPI<?> api) {
             // We set the context this way so we don't accidentally leak activities
             mContext = context.getApplicationContext();
 
@@ -209,9 +179,13 @@ public class SharedListFragment extends Fragment {
                 DropboxAPI.Entry fileMetadata = mApi.metadata(Constants.PATH_TO_FILE_ON_DROPBOX, 1, null, true, null); //TODO
 
                 if(!fileMetadata.modified.equals("")){
-                    //TODO pobierz plik i zapisz date w prefs
-                    mContext.getSharedPreferences(Constants.SHARED_LIST_NAME, Context.MODE_PRIVATE).edit().putString("rev", fileMetadata.rev).putString("date", fileMetadata.modified).apply();
+
+                    mContext.getSharedPreferences(Constants.SHARED_LIST_NAME, Context.MODE_PRIVATE).
+                            edit().putString(Constants.REV, fileMetadata.rev).
+                            putString(Constants.MODIFICATION_DATE, fileMetadata.modified).apply();
+
                     File sharedList = Utils.getFileFromName(mContext,Constants.SHARED_LIST_NAME);
+
                     try {
                         mFos = new FileOutputStream(sharedList);
                     } catch (FileNotFoundException e) {
@@ -271,57 +245,63 @@ public class SharedListFragment extends Fragment {
         @Override
         protected void onPostExecute(ListDataProvider dataProvider) {
 
-            //noinspection ConstantConditions
-            mRecyclerView = (RecyclerView) getActivity().findViewById(R.id.recycler_view);
-            mLayoutManager = new LinearLayoutManager(getActivity());
-            mRecyclerView.setLayoutManager(mLayoutManager);
+            if(dataProvider != null){
+                Toast.makeText(getActivity(), "Lista pobrana",Toast.LENGTH_SHORT).show();
+                ((MainActivity)getActivity()).setSharedListUpdated(true);
 
-            mRecyclerViewDragDropManager = new RecyclerViewDragDropManager();
-            mRecyclerViewDragDropManager.setDraggingItemShadowDrawable(
-                    (NinePatchDrawable) ContextCompat.getDrawable(getActivity(), R.drawable.material_shadow_z1_9));
+                //noinspection ConstantConditions
+                mRecyclerView = (RecyclerView) getActivity().findViewById(R.id.recycler_view);
+                mLayoutManager = new LinearLayoutManager(getActivity());
+                mRecyclerView.setLayoutManager(mLayoutManager);
 
-            mRecyclerViewDragDropManager.setInitiateOnLongPress(true);
-            mRecyclerViewDragDropManager.setInitiateOnMove(false);
+                mRecyclerViewDragDropManager = new RecyclerViewDragDropManager();
+                mRecyclerViewDragDropManager.setDraggingItemShadowDrawable(
+                        (NinePatchDrawable) ContextCompat.getDrawable(getActivity(), R.drawable.material_shadow_z1_9));
 
-            //adapter
-            myItemAdapter = new MyDraggableWithSectionItemAdapter(getActivity(), dataProvider);
+                mRecyclerViewDragDropManager.setInitiateOnLongPress(true);
+                mRecyclerViewDragDropManager.setInitiateOnMove(false);
 
-            myItemAdapter.setOnItemClickListener(new MyDraggableWithSectionItemAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
+                //adapter
+                myItemAdapter = new MyDraggableWithSectionItemAdapter(getActivity(), dataProvider);
 
-                    int last = myItemAdapter.getLast();
-                    AbstractDataProvider provider = myItemAdapter.getProvider();
+                myItemAdapter.setOnItemClickListener(new MyDraggableWithSectionItemAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
 
-                    provider.moveItem(position, last + 1);
+                        int last = myItemAdapter.getLast();
+                        AbstractDataProvider provider = myItemAdapter.getProvider();
 
-                    myItemAdapter.notifyItemMoved(position, last + 1);
-                    provider.getItem(last + 1).changeViewType();
-                    myItemAdapter.notifyItemChanged(last + 1);
+                        provider.moveItem(position, last + 1);
 
+                        myItemAdapter.notifyItemMoved(position, last + 1);
+                        provider.getItem(last + 1).changeViewType();
+                        myItemAdapter.notifyItemChanged(last + 1);
+
+                    }
+                });
+
+
+                mWrappedAdapter = mRecyclerViewDragDropManager.createWrappedAdapter(myItemAdapter);      // wrap for dragging
+
+                final GeneralItemAnimator animator = new RefactoredDefaultItemAnimator();
+
+                mRecyclerView.setAdapter(mWrappedAdapter);  // requires *wrapped* adapter
+                mRecyclerView.setItemAnimator(animator);
+
+                // additional decorations
+                //noinspection StatementWithEmptyBody
+                if (supportsViewElevation()) {
+                    // Lollipop or later has native drop shadow feature. ItemShadowDecorator is not required.
+                } else {
+                    mRecyclerView.addItemDecoration(new ItemShadowDecorator((NinePatchDrawable) ContextCompat.getDrawable(getActivity(), R.drawable.material_shadow_z1_9)));
                 }
-            });
+                mRecyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(getActivity(), R.drawable.list_divider), true));
 
-            mAdapter = myItemAdapter;
+                mRecyclerViewDragDropManager.attachRecyclerView(mRecyclerView);
 
-            mWrappedAdapter = mRecyclerViewDragDropManager.createWrappedAdapter(myItemAdapter);      // wrap for dragging
-
-            final GeneralItemAnimator animator = new RefactoredDefaultItemAnimator();
-
-            mRecyclerView.setAdapter(mWrappedAdapter);  // requires *wrapped* adapter
-            mRecyclerView.setItemAnimator(animator);
-
-            // additional decorations
-            //noinspection StatementWithEmptyBody
-        if (supportsViewElevation()) {
-            // Lollipop or later has native drop shadow feature. ItemShadowDecorator is not required.
-        } else {
-            mRecyclerView.addItemDecoration(new ItemShadowDecorator((NinePatchDrawable) ContextCompat.getDrawable(getActivity(), R.drawable.material_shadow_z1_9)));
-        }
-            mRecyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(getActivity(), R.drawable.list_divider), true));
-
-            mRecyclerViewDragDropManager.attachRecyclerView(mRecyclerView);
-
+            }
+            else
+                Toast.makeText(getActivity(), "Nie udalo sie pobrac listy", Toast.LENGTH_SHORT).show();
         }
     }
     private boolean supportsViewElevation() {

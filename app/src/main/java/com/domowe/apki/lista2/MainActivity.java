@@ -128,15 +128,17 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
                 }else if(currentFragment instanceof SharedListFragment && sharedListUpdated){
                     addItemDialog(false).show();
                 }else if(Utils.isOnline(this)){
-                    //TODO pobierz liste we fragmencie
+                    ((SharedListFragment)currentFragment).getSharedList();
                     //addItemDialog(false).show();
                 }else {
                     Toast.makeText(this, "Wlacz dostep do internetu aby uaktualnic wspolna liste", Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.action_remove:
-                //TODO sprawdzanie czy shared czy private
-                removeDialog().show();
+                if(currentFragment instanceof PrivateListFragment)
+                    removeDialog(true).show();
+                else if (currentFragment instanceof SharedListFragment && sharedListUpdated)
+                    removeDialog(false).show();
                 break;
             case R.id.action_delete:
                 deleteDialog().show();
@@ -250,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         return dialog;
     }
 
-    private Dialog removeDialog(){
+    private Dialog removeDialog(final boolean isPrivate){
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_delete);
@@ -267,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         yes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                handleItemsRemoving();
+                handleItemsRemoving(isPrivate);
                 dialog.dismiss();
             }
         });
@@ -337,12 +339,15 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
             articles.add(name);
     }
 
-    private void handleItemsRemoving(){
-        MyDraggableWithSectionItemAdapter adapter = ((PrivateListFragment)getSupportFragmentManager().findFragmentById(R.id.container)).getMyItemAdapter();
+    private void handleItemsRemoving(boolean isPrivate){
+        MyDraggableWithSectionItemAdapter adapter;
+        if(isPrivate)
+            adapter = ((PrivateListFragment)getSupportFragmentManager().findFragmentById(R.id.container)).getMyItemAdapter();
+        else
+            adapter = ((SharedListFragment)getSupportFragmentManager().findFragmentById(R.id.container)).getMyItemAdapter();
         ListDataProvider provider = (ListDataProvider) adapter.getProvider();
         provider.removeInactiveItems(adapter.getLast() + 2);
         adapter.notifyDataSetChanged();
-        //adapter.notifyItemRangeRemoved(adapter.getLast()+2, provider.getCount());
     }
 
     private void setToolbarClickListener(){
