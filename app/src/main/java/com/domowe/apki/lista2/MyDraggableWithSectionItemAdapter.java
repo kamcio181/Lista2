@@ -55,6 +55,7 @@ public class MyDraggableWithSectionItemAdapter
         public final CustomTextView mQuantity;
         public final CustomTextView mNewItem;
         public final LinearLayout mBody;
+        public final ViewGroup.LayoutParams params;
 
         public MyViewHolder(final View v) {
             super(v);
@@ -64,6 +65,7 @@ public class MyDraggableWithSectionItemAdapter
             mName = (CustomTextView) v.findViewById(R.id.name);
             mQuantity = (CustomTextView) v.findViewById(R.id.quantity);
             mNewItem = (CustomTextView) v.findViewById(R.id.newItem);
+            params = mName.getLayoutParams();
             if(mBody!=null)
                 mBody.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -132,11 +134,11 @@ public class MyDraggableWithSectionItemAdapter
     private void onBindSectionHeaderViewHolder(MyViewHolder holder, int position) {
         final AbstractDataProvider.Data item = mProvider.getItem(position);
 
-        if(position!=0){
-            ViewGroup.LayoutParams params = holder.mName.getLayoutParams();
-            params.height = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, context.getResources().getDisplayMetrics());//zmiana wielkosci
-            holder.mName.setLayoutParams(params);
-        }
+        int height = position == 0 ? 32 : 60;
+
+        holder.params.height = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, context.getResources().getDisplayMetrics());//zmiana wielkosci
+        holder.mName.setLayoutParams(holder.params);
+
         // set text
         holder.mName.setText(item.getText());
 

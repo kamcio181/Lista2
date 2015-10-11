@@ -51,12 +51,20 @@ public class ListDataProvider extends AbstractDataProvider {
     }
 
     @Override
-    public Data getItem(int index) {
+    public ConcreteData getItem(int index) {
         if (index < 0 || index >= getCount()) {
             throw new IndexOutOfBoundsException("index = " + index);
         }
 
         return mData.get(index);
+    }
+
+    @Override
+    public void clearNew() {
+        for (int i = 1; i<mData.size(); i++){
+            if(mData.get(i).isNewItem())
+                mData.get(i).setNewItem(false);
+        }
     }
 
     @Override
@@ -83,6 +91,20 @@ public class ListDataProvider extends AbstractDataProvider {
     @Override
     public void addItem(String name, String quantity, boolean isNew) {
         mData.add(1,new ConcreteData(mData.size(), false, Constants.ITEM_VIEW_TYPE_SECTION_ITEM_ACTIVE, name, quantity, isNew));
+    }
+
+    @Override
+    public boolean contains(String name, String quantity){
+        ConcreteData currentItem;
+        for (int i = 1; i < mData.size(); i++){
+            currentItem = mData.get(i);
+            if(currentItem.isSectionHeader())
+                break;
+            else if(currentItem.getText().equals(name) && currentItem.getQuantity().equals(quantity)){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

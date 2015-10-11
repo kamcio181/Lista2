@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Lista2</string>
+    <string name="app_name">Lista zakupów</string>
     <string name="title_activity_settings">Ustawienia</string>
     <string name="title_activity_items_management">Usuń zbędne artykuły</string>
 

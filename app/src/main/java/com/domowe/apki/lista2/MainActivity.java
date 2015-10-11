@@ -19,6 +19,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
     private Fragment mainFragment;
     private boolean removeNote;
     private boolean sharedListUpdated = false;
+    private TextView sharedUpdater, sharedDate;
+    private LinearLayout titleSubtitle;
 
     private String listName;
     private int listId;
@@ -55,8 +58,9 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
 
         RelativeLayout toolbarLayout = (RelativeLayout) findViewById(R.id.toolbarLayout);
         toolbar = (Toolbar) toolbarLayout.findViewById(R.id.toolbar);
-        //title = (TextView) toolbarLayout.findViewById(R.id.title);
-        //subtitle = (TextView) toolbarLayout.findViewById(R.id.subtitle);
+        sharedUpdater = (TextView) toolbarLayout.findViewById(R.id.title);
+        sharedDate = (TextView) toolbarLayout.findViewById(R.id.subtitle);
+        titleSubtitle = (LinearLayout) toolbarLayout.findViewById(R.id.title_subtitle);
 
         setSupportActionBar(toolbar);
         setToolbarClickListener();
@@ -73,6 +77,14 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         this.lists = lists;
     }
 
+    public void setUpdater(String updater){
+        sharedUpdater.setText(updater);
+    }
+
+    public void setDate(String date){
+        sharedDate.setText(date);
+    }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -84,14 +96,17 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
             setTitle("Twoje notatki:");
         }
         else if(currentFragment instanceof PrivateListFragment){
+            titleSubtitle.setVisibility(View.GONE);
             menu.findItem(R.id.action_add).setVisible(true);
             menu.findItem(R.id.action_remove).setVisible(true);
             menu.findItem(R.id.action_delete).setVisible(true);
         }
         else if(currentFragment instanceof NoteFragment){
+            titleSubtitle.setVisibility(View.GONE);
             menu.findItem(R.id.action_delete).setVisible(true);
         }
         else {
+            titleSubtitle.setVisibility(View.VISIBLE);
             menu.findItem(R.id.action_add).setVisible(true);
             menu.findItem(R.id.action_remove).setVisible(true);
             menu.findItem(R.id.action_reload).setVisible(true);
@@ -141,10 +156,14 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
                     removeDialog(false).show();
                 break;
             case R.id.action_delete:
-                deleteDialog().show();
+                if(!(currentFragment instanceof SharedListFragment))
+                    deleteDialog().show();
                 break;
             case R.id.action_reload:
-                //TODO sprawdz czy jest dostep do neta i pobierz liste
+                if(Utils.isOnline(this))
+                    ((SharedListFragment)currentFragment).updateSharedList();
+                else
+                    Toast.makeText(this, "Wlacz dostep do internetu aby uaktualnic wspolna liste", Toast.LENGTH_LONG).show();
                 break;
             case R.id.action_save:
                 //TODO sprawdz czy jest dostep do neta i pobierz liste
@@ -306,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
 
         String type = isList ? "lista" : "notatka";
 
-        ((IndexFragment)mainFragment).getProvider().addItem(name, (new SimpleDateFormat("yyyy-MM-dd HH-mm-ss")).format(new Date()), type);
+        ((IndexFragment)mainFragment).getProvider().addItem(name, (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(new Date()), type);
         listName = name;
         listId = 1;
 
@@ -418,7 +437,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
 
     @Override
     public void itemClicked(String name, String date, String type, int id) {
-        setTitle(name);
+
 
         listName = name;
         listId = id;
@@ -427,6 +446,8 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
             Toast.makeText(this, "Jeszcze nie gotowe", Toast.LENGTH_SHORT).show();
         }
         else {//TODO wspolna lista
+            setTitle(name);
+
             Fragment fragment = new Fragment();
             if (type.equals("notatka")) {
                 fragment = NoteFragment.newInstance(name, id);

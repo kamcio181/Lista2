@@ -91,8 +91,8 @@ public class Utils {
             ((PrivateListFragment)fragment).setFile(getFileFromName(fragment.getActivity(),name));
     }
     public static File getFileFromName(Context context, String name){
-        return new File(Environment.getExternalStorageDirectory(),name);
-        //return new File(context.getFilesDir(),name);
+        //return new File(Environment.getExternalStorageDirectory(),name);
+        return new File(context.getFilesDir(), name);
     }
     public static void showKeyboard(Context context, EditText editText){
         editText.requestFocus();

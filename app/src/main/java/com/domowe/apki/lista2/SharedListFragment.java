@@ -47,7 +47,6 @@ public class SharedListFragment extends Fragment {
     private RecyclerView.Adapter mWrappedAdapter;
     private RecyclerViewDragDropManager mRecyclerViewDragDropManager;
     private MyDraggableWithSectionItemAdapter myItemAdapter;
-
     DropboxAPI<AndroidAuthSession> mApi;
 
     public SharedListFragment() {
@@ -73,8 +72,13 @@ public class SharedListFragment extends Fragment {
     }
 
     public void getSharedList(){
-        Toast.makeText(getActivity(), "Pobieranie listy z serwera",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "Pobieranie listy z serwera", Toast.LENGTH_SHORT).show();
         new DownloadSharedList(getActivity(), mApi).execute();
+    }
+
+    public void updateSharedList(){
+        Toast.makeText(getActivity(), "Pobieranie listy z serwera", Toast.LENGTH_SHORT).show();
+        new UpdateSharedList(getActivity(), mApi).execute();
     }
 
     @Override
@@ -249,6 +253,12 @@ public class SharedListFragment extends Fragment {
                 Toast.makeText(getActivity(), "Lista pobrana",Toast.LENGTH_SHORT).show();
                 ((MainActivity)getActivity()).setSharedListUpdated(true);
 
+                ((MainActivity)getActivity()).setUpdater(dataProvider.getItem(0).getText());
+                ((MainActivity)getActivity()).setDate(mContext.getSharedPreferences(Constants.SHARED_LIST_NAME, Context.MODE_PRIVATE).
+                        getString(Constants.MODIFICATION_DATE, ""));
+
+                dataProvider.removeItem(0);
+
                 //noinspection ConstantConditions
                 mRecyclerView = (RecyclerView) getActivity().findViewById(R.id.recycler_view);
                 mLayoutManager = new LinearLayoutManager(getActivity());
@@ -306,6 +316,125 @@ public class SharedListFragment extends Fragment {
     }
     private boolean supportsViewElevation() {
         return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+    }
+
+    public class UpdateSharedList extends AsyncTask<Void, Long, ListDataProvider> {
+
+
+        private Context mContext;
+        private DropboxAPI<?> mApi;
+
+        private FileOutputStream mFos;
+
+        private String mErrorMsg;
+
+        public UpdateSharedList(Context context, DropboxAPI<?> api) {
+            // We set the context this way so we don't accidentally leak activities
+            mContext = context.getApplicationContext();
+
+            mApi = api;
+        }
+
+        @Override
+        protected ListDataProvider doInBackground(Void... params) {
+            try {
+                // Get the metadata for a directory
+                DropboxAPI.Entry fileMetadata = mApi.metadata(Constants.PATH_TO_FILE_ON_DROPBOX, 1, null, true, null); //TODO
+
+                if(!fileMetadata.modified.equals(mContext.getSharedPreferences(Constants.SHARED_LIST_NAME, Context.MODE_PRIVATE).getString(Constants.MODIFICATION_DATE, ""))){
+
+                    mContext.getSharedPreferences(Constants.SHARED_LIST_NAME, Context.MODE_PRIVATE).
+                            edit().putString(Constants.REV, fileMetadata.rev).
+                            putString(Constants.MODIFICATION_DATE, fileMetadata.modified).apply();
+
+                    File sharedList = Utils.getFileFromName(mContext,Constants.SHARED_LIST_NAME);
+
+                    try {
+                        mFos = new FileOutputStream(sharedList);
+                    } catch (FileNotFoundException e) {
+                        mErrorMsg = "Couldn't create a local file to store the list";
+                        return new ListDataProvider(null);
+                    }
+                    mApi.getFile(Constants.PATH_TO_FILE_ON_DROPBOX,fileMetadata.rev,mFos,null);
+                    return new ListDataProvider(sharedList);
+                }
+            } catch (DropboxUnlinkedException e) {
+                // The AuthSession wasn't properly authenticated or user unlinked.
+            } catch (DropboxPartialFileException e) {
+                // We canceled the operation
+                mErrorMsg = "Download canceled";
+            } catch (DropboxServerException e) {
+                // Server-side exception.  These are examples of what could happen,
+                // but we don't do anything special with them here.
+                if (e.error == DropboxServerException._304_NOT_MODIFIED) {
+                    // won't happen since we don't pass in revision with metadata
+                } else if (e.error == DropboxServerException._401_UNAUTHORIZED) {
+                    // Unauthorized, so we should unlink them.  You may want to
+                    // automatically log the user out in this case.
+                } else if (e.error == DropboxServerException._403_FORBIDDEN) {
+                    // Not allowed to access this
+                } else if (e.error == DropboxServerException._404_NOT_FOUND) {
+                    // path not found (or if it was the thumbnail, can't be
+                    // thumbnailed)
+                } else if (e.error == DropboxServerException._406_NOT_ACCEPTABLE) {
+                    // too many entries to return
+                } else if (e.error == DropboxServerException._415_UNSUPPORTED_MEDIA) {
+                    // can't be thumbnailed
+                } else if (e.error == DropboxServerException._507_INSUFFICIENT_STORAGE) {
+                    // user is over quota
+                } else {
+                    // Something else
+                }
+                // This gets the Dropbox error, translated into the user's language
+                mErrorMsg = e.body.userError;
+                if (mErrorMsg == null) {
+                    mErrorMsg = e.body.error;
+                }
+            } catch (DropboxIOException e) {
+                // Happens all the time, probably want to retry automatically.
+                mErrorMsg = "Network error.  Try again.";
+            } catch (DropboxParseException e) {
+                // Probably due to Dropbox server restarting, should retry
+                mErrorMsg = "Dropbox error.  Try again.";
+            } catch (DropboxException e) {
+                // Unknown error
+                mErrorMsg = "Unknown error.  Try again.";
+            }
+            return new ListDataProvider(null);
+        }
+
+
+
+        @Override
+        protected void onPostExecute(ListDataProvider dataProvider) {
+
+            if(dataProvider != null){
+                Toast.makeText(getActivity(), "Lista została uaktualniona",Toast.LENGTH_SHORT).show();
+
+                ((MainActivity)getActivity()).setUpdater(dataProvider.getItem(0).getText());
+                ((MainActivity)getActivity()).setDate(mContext.getSharedPreferences(Constants.SHARED_LIST_NAME, Context.MODE_PRIVATE).
+                        getString(Constants.MODIFICATION_DATE, ""));
+
+                dataProvider.removeItem(0);
+
+                ListDataProvider.ConcreteData newItem;
+                boolean firstNewItem = true;
+                for (int i=0; i<dataProvider.getCount(); i++){
+                    newItem = dataProvider.getItem(i);
+
+                    if (!myItemAdapter.getProvider().contains(newItem.getText(), newItem.getQuantity())) {
+                        if(firstNewItem){
+                            myItemAdapter.getProvider().clearNew();
+                            firstNewItem = false;
+                        }
+                        myItemAdapter.getProvider().addItem(newItem.getText(), newItem.getQuantity(), true);
+                    }
+                }
+                myItemAdapter.notifyDataSetChanged();
+            }
+            else
+                Toast.makeText(getActivity(), "Lista jest aktualna", Toast.LENGTH_SHORT).show();
+        }
     }
 }
 

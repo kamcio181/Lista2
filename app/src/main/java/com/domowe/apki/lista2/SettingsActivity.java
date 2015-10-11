@@ -49,6 +49,7 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
                 break;
 
             case 2:
+                dialog = null;
                 startActivity(new Intent(this, ItemsManagementActivity.class));
                 break;
 

@@ -48,4 +48,8 @@ public abstract class AbstractDataProvider {
     public abstract int undoLastRemoval();
 
     public abstract void addItem(String name, String quantity, boolean isNew);
+
+    public abstract boolean contains(String name, String quantity);
+
+    public abstract void clearNew();
 }
