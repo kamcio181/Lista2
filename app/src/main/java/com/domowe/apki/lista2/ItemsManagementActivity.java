@@ -6,10 +6,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -38,8 +40,68 @@ public class ItemsManagementActivity extends AppCompatActivity implements Adapte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        removeItemDialog(i).show();
+        removeEditDialog(i).show();
     }
+
+    private Dialog removeEditDialog(final int itemId){
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_delete);
+        TextView textView = (TextView) dialog.findViewById(R.id.textView);
+        Button edit = (Button) dialog.findViewById(R.id.nie);
+        Button remove = (Button) dialog.findViewById(R.id.tak);
+        textView.setText(R.string.choose_action);
+        edit.setText(R.string.edit);
+        remove.setText(R.string.delete);
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                editItemDialog(itemId).show();
+            }
+        });
+        remove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                removeItemDialog(itemId).show();
+            }
+        });
+        return dialog;
+    }
+
+    private Dialog editItemDialog(final int itemId){
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_change_name);
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        TextView textView = (TextView) dialog.findViewById(R.id.textView);
+        final EditText editText = (EditText) dialog.findViewById(R.id.name);
+        Button cancel = (Button) dialog.findViewById(R.id.anuluj);
+        Button confirm = (Button) dialog.findViewById(R.id.zatwierdz);
+        textView.setText(R.string.article_edit);
+        editText.setHint(R.string.enter_article);
+        editText.setText(articles.get(itemId));
+        editText.setSelection(articles.get(itemId).length());
+        cancel.setText(R.string.cancel);
+        confirm.setText(R.string.confirm);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                articles.set(itemId, editText.getText().toString().trim());
+                ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+                dialog.dismiss();
+            }
+        });
+        return dialog;
+    }
+
     private Dialog removeItemDialog(final int itemId){
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);

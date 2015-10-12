@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Lista zakupów</string>
     <string name="title_activity_settings">Ustawienia</string>
-    <string name="title_activity_items_management">Usuń zbędne artykuły</string>
+    <string name="title_activity_items_management">Zarzadzanie artykulami</string>
 
     <string name="action_settings">Settings</string>
     <string name="add">Dodaj</string>
@@ -16,6 +16,12 @@
     <string name="delete_item_question">Usunąć artykuł?</string>
     <string name="failed_to_change_name">Zmiana nazwy nieudala sie</string>
     <string name="empty_field">Pole jest puste!</string>
+    <string name="choose_action">Wybierz akcje</string>
+    <string name="edit">Edytuj</string>
+    <string name="article_edit">Edytuj artykul</string>
+    <string name="enter_article">Wprowadz artykul</string>
+    <string name="cancel">Anuluj</string>
+    <string name="confirm">Zatwierdz</string>
 
 
     <array name="settings">
