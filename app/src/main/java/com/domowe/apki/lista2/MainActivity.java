@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
     private Toolbar toolbar;
     private Fragment mainFragment;
     private boolean removeNote;
+    private boolean sharedListFirstTimeUpdated = false;
     private boolean sharedListUpdated = false;
     private TextView sharedUpdater, sharedDate;
     private LinearLayout titleSubtitle;
@@ -136,36 +137,53 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
                 break;
 
             case R.id.action_add:
-                if(currentFragment instanceof IndexFragment) {
+                if(currentFragment instanceof IndexFragment) { //dodaj liste/notatke
                     listTypeDialog().show();
-                } else if(currentFragment instanceof PrivateListFragment){
+                } else if(currentFragment instanceof PrivateListFragment){ //dodaj artykul do listy prywatnej
                     addItemDialog(true).show();
-                }else if(currentFragment instanceof SharedListFragment && sharedListUpdated){
+                }else if(currentFragment instanceof SharedListFragment && sharedListFirstTimeUpdated){ //sprawdz czy lista jest aktualna
                     addItemDialog(false).show();
-                }else if(Utils.isOnline(this)){
+                }else if(Utils.isOnline(this)){ //pobierz liste jesli nie jest aktualna
                     ((SharedListFragment)currentFragment).getSharedList();
                     //addItemDialog(false).show();
                 }else {
-                    Toast.makeText(this, "Wlacz dostep do internetu aby uaktualnic wspolna liste", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.enable_internet_connection, Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.action_remove:
-                if(currentFragment instanceof PrivateListFragment)
+                if(currentFragment instanceof PrivateListFragment) //usun kupione z prywatnej listy
                     removeDialog(true).show();
-                else if (currentFragment instanceof SharedListFragment && sharedListUpdated)
+                else if (currentFragment instanceof SharedListFragment && sharedListFirstTimeUpdated) //usun kupione z wspolnej jesli jest aktualna
                     removeDialog(false).show();
                 break;
             case R.id.action_delete:
-                if(!(currentFragment instanceof SharedListFragment))
+                if(!(currentFragment instanceof SharedListFragment)) //usun liste/ notatke
                     deleteDialog().show();
                 break;
             case R.id.action_reload:
-                if(Utils.isOnline(this))
+                if(Utils.isOnline(this)) //uaktualnij liste
                     ((SharedListFragment)currentFragment).updateSharedList();
                 else
-                    Toast.makeText(this, "Wlacz dostep do internetu aby uaktualnic wspolna liste", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.enable_internet_connection, Toast.LENGTH_LONG).show();
                 break;
             case R.id.action_save:
+                if(sharedListFirstTimeUpdated){ //sprawdzenie czy wspolna lista zostala pobrana na przed edycja
+                    if(Utils.isOnline(this)) { //sprawdz czy nic sie nie zmienilo od ostatniego updatu
+                        sharedListUpdated = false;
+                            ((SharedListFragment) currentFragment).updateSharedList();
+                        if (sharedListUpdated)
+                            Toast.makeText(this, "Na serwerze znajdowala sie nowa wersja listy.\n Sprawdz nowosci i zapisz ponownie", Toast.LENGTH_LONG).show();
+                        else {
+                            //TODO zapisz na serwer
+                        }
+                    }
+                    else
+                        Toast.makeText(this, R.string.internet_not_connected, Toast.LENGTH_LONG).show();
+                }
+                else if(Utils.isOnline(this)){
+                    ((SharedListFragment)currentFragment).getSharedList();
+                }
+
                 //TODO sprawdz czy jest dostep do neta i pobierz liste
                 //TODO porownaj nowa liste z data ze starej - jesli daty rozne sprawdz roznice i dodaj jako new i popros o sprawdze nie zmian
                 //TODO jezeli nie bylo zmian zapisz liste
@@ -489,6 +507,9 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.Lis
         articles = Utils.getDefaultList(this);
     }
 
+    public void setSharedListFirstTimeUpdated(boolean sharedListUpdated) {
+        this.sharedListFirstTimeUpdated = sharedListUpdated;
+    }
     public void setSharedListUpdated(boolean sharedListUpdated) {
         this.sharedListUpdated = sharedListUpdated;
     }

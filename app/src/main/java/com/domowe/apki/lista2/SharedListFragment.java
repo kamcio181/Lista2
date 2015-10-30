@@ -251,7 +251,7 @@ public class SharedListFragment extends Fragment {
 
             if(dataProvider != null){
                 Toast.makeText(getActivity(), "Lista pobrana",Toast.LENGTH_SHORT).show();
-                ((MainActivity)getActivity()).setSharedListUpdated(true);
+                ((MainActivity)getActivity()).setSharedListFirstTimeUpdated(true);
 
                 ((MainActivity)getActivity()).setUpdater(dataProvider.getItem(0).getText());
                 ((MainActivity)getActivity()).setDate(mContext.getSharedPreferences(Constants.SHARED_LIST_NAME, Context.MODE_PRIVATE).
@@ -410,6 +410,7 @@ public class SharedListFragment extends Fragment {
 
             if(dataProvider != null){
                 Toast.makeText(getActivity(), "Lista została uaktualniona",Toast.LENGTH_SHORT).show();
+                ((MainActivity)getActivity()).setSharedListUpdated(true);
 
                 ((MainActivity)getActivity()).setUpdater(dataProvider.getItem(0).getText());
                 ((MainActivity)getActivity()).setDate(mContext.getSharedPreferences(Constants.SHARED_LIST_NAME, Context.MODE_PRIVATE).
